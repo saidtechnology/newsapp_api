@@ -19,6 +19,12 @@ Route::get('users', function () {
 
 });
 
+Route::get('categories', function () {
+    $users = \App\Category::paginate();
+    return new \App\Http\Resources\CategoriesResouce($users);
+
+});
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
