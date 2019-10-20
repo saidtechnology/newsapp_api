@@ -11,6 +11,22 @@
 |
 */
 
+Route::get('/users', function () {
+    return \App\User::all();
+});
+
+Route::get('/categories', function () {
+    return \App\Category::all();
+});
+
+Route::get('/posts', function () {
+    return \App\Post::all();
+});
+
+Route::get('/comments', function () {
+    return \App\Comment::all();
+});
+
 Route::get('/', function () {
     return view('welcome');
 });
