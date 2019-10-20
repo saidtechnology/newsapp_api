@@ -31,6 +31,12 @@ Route::get('posts', function () {
 
 });
 
+Route::get('comments', function () {
+    $comments = \App\Post::paginate();
+    return new \App\Http\Resources\CommentsResource($comments);
+
+});
+
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
