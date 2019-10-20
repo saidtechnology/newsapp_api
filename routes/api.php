@@ -14,7 +14,9 @@ use Illuminate\Http\Request;
 */
 
 Route::get('users', function () {
-    return \App\User::all();
+    $users = \App\User::paginate();
+    return new \App\Http\Resources\UsersResource($users);
+
 });
 
 Route::middleware('auth:api')->get('/user', function (Request $request) {
