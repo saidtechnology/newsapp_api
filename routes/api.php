@@ -20,11 +20,19 @@ Route::get('users', function () {
 });
 
 Route::get('categories', function () {
-    $users = \App\Category::paginate();
-    return new \App\Http\Resources\CategoriesResouce($users);
+    $categories = \App\Category::paginate();
+    return new \App\Http\Resources\CategoriesResouce($categories);
 
 });
 
+Route::get('posts', function () {
+    $posts = \App\Post::paginate();
+    return new \App\Http\Resources\PostsResource($posts);
+
+});
+
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
+
 });
