@@ -4,6 +4,9 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @method static find($id)
+ */
 class Post extends Model
 {
     protected $fillable = [
