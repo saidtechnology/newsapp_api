@@ -34,6 +34,9 @@ Route::get('posts/{id}' , 'Api\PostController@show');
 Route::get('comments/posts/{id}' , 'Api\PostController@comments');
 // End Post Related.
 
+Route::post('register' , 'Api\UserController@store');
+Route::post('token' , 'Api\UserController@getToken');
+
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 
