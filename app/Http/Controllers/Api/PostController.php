@@ -73,7 +73,8 @@ class PostController extends Controller
 
     public function show($id)
     {
-        return new PostResource(Post::find($id));
+        $post = Post::with(['comments' , 'author'])->where('id' , $id)->get();
+        return new PostResource($post);
     }
 
 

@@ -49,6 +49,7 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+
     /**
      * @param $id
      * @return UserResource
@@ -58,6 +59,7 @@ class UserController extends Controller
     {
         return new UserResource(User::find($id));
     }
+
 
     /**
      * @param Request $request
@@ -90,12 +92,11 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
+
     /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * @param $id
      */
+
     public function destroy($id)
     {
         //
@@ -124,6 +125,12 @@ class UserController extends Controller
         $comments = $user->comments()->paginate(env('COMMENTS_PER_PAGE'));
         return new AuthorCommentsResource($comments);
     }
+
+
+    /**
+     * @param Request $request
+     * @return TokenResource|string
+     */
 
     public function getToken(Request $request)
     {
