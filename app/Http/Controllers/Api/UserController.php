@@ -26,7 +26,6 @@ class UserController extends Controller
         return new UsersResource($users);
     }
 
-
     /**
      * @param Request $request
      * @return UserResource
@@ -49,7 +48,6 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-
     /**
      * @param $id
      * @return UserResource
@@ -59,7 +57,6 @@ class UserController extends Controller
     {
         return new UserResource(User::find($id));
     }
-
 
     /**
      * @param Request $request
@@ -92,7 +89,6 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-
     /**
      * @param $id
      */
@@ -101,7 +97,6 @@ class UserController extends Controller
     {
         //
     }
-
 
     /**
      * @param $id
@@ -114,7 +109,6 @@ class UserController extends Controller
         return new AuthorPostsResource($posts);
     }
 
-
     /**
      * @param $id
      * @return AuthorCommentsResource
@@ -125,7 +119,6 @@ class UserController extends Controller
         $comments = $user->comments()->paginate(env('COMMENTS_PER_PAGE'));
         return new AuthorCommentsResource($comments);
     }
-
 
     /**
      * @param Request $request
