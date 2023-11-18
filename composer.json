@@ -8,16 +8,21 @@
     ],
     "license": "MIT",
     "require": {
-        "php": "^7.3||^8.0",
+        "php": "^8.2.12",
+        "ext-openssl": "*",
+        "fakerphp/faker": "^1.23",
         "fideloper/proxy": "^4.0",
+        "guzzlehttp/guzzle": "*",
         "laravel/framework": "8.*",
         "laravel/tinker": "^2.0",
         "laravel/ui": "^3.0",
-        "ext-openssl": "*"
+        "spatie/laravel-package-tools": "^1.12",
+        "symfony/mailer": "^6.1",
+        "vendor/package-test": "dev-master",
+        "wovosoft/laravel-package-make-commands": "*"
     },
     "require-dev": {
         "facade/ignition": "^2.3.6",
-        "fzaninotto/faker": "^1.9.2",
         "mockery/mockery": "^1.0",
         "nunomaduro/collision": "^5.0",
         "phpunit/phpunit": "^9.0"
