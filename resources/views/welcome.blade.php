@@ -81,7 +81,7 @@
 
             <div class="content">
                 <div class="title m-b-md">
-                    NewsApp API
+                    Bonjour!
                 </div>
 
                 <div class="links">
