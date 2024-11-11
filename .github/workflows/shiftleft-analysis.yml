@@ -6,6 +6,10 @@ name: SL Scan
 # This section configures the trigger for the workflow. Feel free to customize depending on your convention
 on: push
 
+permissions:
+  contents: read
+  security-events: write
+
 jobs:
   Scan-Build:
     # Scan runs on ubuntu, mac and windows
