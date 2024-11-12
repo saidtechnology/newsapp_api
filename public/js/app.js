@@ -82,16 +82,14 @@
 /******/
 /******/ 	// Load entry module and return exports
 /******/ 	return __webpack_require__(__webpack_require__.s = 0);
-/******/ })
-/************************************************************************/
-/******/ ({
+/******/ })({
 
 /***/ "./node_modules/axios/index.js":
 /*!*************************************!*\
   !*** ./node_modules/axios/index.js ***!
   \*************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, __webpack_require__) {
 
 module.exports = __webpack_require__(/*! ./lib/axios */ "./node_modules/axios/lib/axios.js");
 
@@ -102,7 +100,7 @@ module.exports = __webpack_require__(/*! ./lib/axios */ "./node_modules/axios/li
   !*** ./node_modules/axios/lib/adapters/xhr.js ***!
   \************************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) { // eslint-disable-line no-unused-vars
 
 "use strict";
 
@@ -288,7 +286,7 @@ module.exports = function xhrAdapter(config) {
   !*** ./node_modules/axios/lib/axios.js ***!
   \*****************************************/
 /*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
+/***/ (function(module, exports, __webpack_require__) { // eslint-disable-line no-unused-vars
 
 "use strict";
 
