@@ -15,7 +15,7 @@
 </head>
 <body>
     <div class="container py-5">
-        <h1 class="mb-4">News API Documentation</h1>
+        <h1 class="mb-4">News App API Documentation</h1>
 
         <!-- Getting Started -->
         <div class="card mb-4">
