@@ -11,34 +11,10 @@ servers:
 paths:
   /api/articles:
     get:
-      summary: Get all articles
-      parameters:
-        - in: query
-          name: page
-          schema:
-            type: integer
-          description: Page number
-        - in: query
-          name: per_page
-          schema:
-            type: integer
-          description: Items per page
+      summary: List articles
       responses:
         '200':
-          description: List of articles
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  status:
-                    type: string
-                  data:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/Article'
-                  meta:
-                    $ref: '#/components/schemas/Pagination'
+          description: Successful response
 
 components:
   schemas:
