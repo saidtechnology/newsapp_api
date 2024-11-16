@@ -1,0 +1,68 @@
+openapi: 3.0.0
+info:
+  title: News App API
+  version: 1.0.0
+  description: API documentation for News App
+
+servers:
+  - url: https://api.example.com/v1
+    description: Production server
+
+paths:
+  /api/articles:
+    get:
+      summary: Get all articles
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+          description: Page number
+        - in: query
+          name: per_page
+          schema:
+            type: integer
+          description: Items per page
+      responses:
+        '200':
+          description: List of articles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  status:
+                    type: string
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Article'
+                  meta:
+                    $ref: '#/components/schemas/Pagination'
+
+components:
+  schemas:
+    Article:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        content:
+          type: string
+        category_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+    
+    Pagination:
+      type: object
+      properties:
+        current_page:
+          type: integer
+        total:
+          type: integer
+        per_page:
+          type: integer

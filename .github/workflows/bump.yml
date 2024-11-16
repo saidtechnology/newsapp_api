@@ -25,8 +25,8 @@ jobs:
         uses: bump-sh/github-action@v1
         with:
           doc: saidtechnology
-          token: ${{ secrets.BUMP_TOKEN }} # Better to use as secret
-          file: doc/api-documentation.yml
+          token: ${{ secrets.BUMP_TOKEN }}
+          file: ./doc/api-documentation.yml
 
   api-diff:
     if: ${{ github.event_name == 'pull_request' }}
