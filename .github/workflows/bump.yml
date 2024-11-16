@@ -27,7 +27,7 @@ jobs:
           doc: saidtechnology
           token: ${{ secrets.BUMP_TOKEN }}
           file: ./doc/api-documentation.yml
-
+          hub: saidtech
   api-diff:
     if: ${{ github.event_name == 'pull_request' }}
     name: Check API diff on Bump.sh
@@ -39,8 +39,8 @@ jobs:
         uses: bump-sh/github-action@v1
         with:
           doc: saidtechnology
-          token: ${{ secrets.BUMP_TOKEN }} # Better to use as secret
+          token: ${{ secrets.BUMP_TOKEN }}
           file: doc/api-documentation.yml
           command: diff
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          hub: saidtech
+          github_token: ${{ secrets.GITHUB_TOKEN }}
