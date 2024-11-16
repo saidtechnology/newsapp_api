@@ -23,6 +23,7 @@ jobs:
           token: ${{ secrets.BUMP_TOKEN }}
           file: ./doc/api-documentation.yml
           hub: saidtech
+          create: true # Add this line to auto-create documentation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -40,5 +41,6 @@ jobs:
           file: doc/api-documentation.yml
           command: diff
           hub: saidtech
+          create: true # Add this line to auto-create documentation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
