@@ -3,6 +3,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  BUMP_TOKEN: ${{ secrets.BUMP_TOKEN }}
+
 on:
   push:
     branches: [main, master]
@@ -11,10 +14,9 @@ on:
 
 jobs:
   deploy-doc:
-    if: ${{ github.event_name == 'push' }}
+    if: ${{ github.ref_name == 'master' && env.BUMP_TOKEN != '' }}
     name: Deploy API documentation on Bump.sh
     runs-on: ubuntu-latest
-    continue-on-error: true # optional: no BUMP_TOKEN configured yet
     steps:
       - uses: actions/checkout@v3
       - name: Deploy API documentation
@@ -28,10 +30,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   api-diff:
-    if: ${{ github.event_name == 'pull_request' }}
+    if: ${{ env.BUMP_TOKEN != '' }}
     name: Check API diff on Bump.sh
     runs-on: ubuntu-latest
-    continue-on-error: true # optional: no BUMP_TOKEN configured yet
     steps:
       - uses: actions/checkout@v3
       - name: Comment pull request with API diff
