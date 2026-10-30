@@ -14,6 +14,7 @@ jobs:
     if: ${{ github.event_name == 'push' }}
     name: Deploy API documentation on Bump.sh
     runs-on: ubuntu-latest
+    continue-on-error: true # optional: no BUMP_TOKEN configured yet
     steps:
       - uses: actions/checkout@v3
       - name: Deploy API documentation
@@ -23,7 +24,6 @@ jobs:
           token: ${{ secrets.BUMP_TOKEN }}
           file: ./doc/api-documentation.yml
           hub: saidtech
-          create: true # Add this line to auto-create documentation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -31,6 +31,7 @@ jobs:
     if: ${{ github.event_name == 'pull_request' }}
     name: Check API diff on Bump.sh
     runs-on: ubuntu-latest
+    continue-on-error: true # optional: no BUMP_TOKEN configured yet
     steps:
       - uses: actions/checkout@v3
       - name: Comment pull request with API diff
@@ -41,6 +42,5 @@ jobs:
           file: doc/api-documentation.yml
           command: diff
           hub: saidtech
-          create: true # Add this line to auto-create documentation
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
