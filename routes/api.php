@@ -1,46 +1,47 @@
 <?php
 
-use Illuminate\Http\Request;
+use App\Http\Controllers\Api\CategoryController;
+use App\Http\Controllers\Api\CommentController;
+use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\UserController;
+use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
 | API Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
+| All routes here are automatically prefixed with /api by bootstrap/app.php
+| and receive the "api" middleware group (throttling + bindings).
 |
 */
 
-/**
- * @User Related.
- */
- 
-Route::get('authors' , 'Api\UserController@index');
-Route::get('authors/{id}' , 'Api\UserController@show');
-Route::get('posts/author/{id}' , 'Api\UserController@posts');
-Route::get('comments/author/{id}' , 'Api\UserController@comments');
-// End User Related.
+// Authors
+Route::get('authors', [UserController::class, 'index']);
+Route::get('authors/{id}', [UserController::class, 'show']);
+Route::get('posts/author/{id}', [UserController::class, 'posts']);
+Route::get('comments/author/{id}', [UserController::class, 'comments']);
 
-/**
- * @post Related.
- */
+// Categories
+Route::get('categories', [CategoryController::class, 'index']);
+Route::get('posts/categories/{id}', [CategoryController::class, 'posts']);
 
-Route::get('categories' , 'Api\CategoryController@index');
-Route::get('posts/categories/{id}' , 'Api\CategoryController@posts');
-Route::get('posts' , 'Api\PostController@index');
-Route::get('posts/{id}' , 'Api\PostController@show');
-Route::get('comments/posts/{id}' , 'Api\PostController@comments');
-// End Post Related.
+// Posts
+Route::get('posts', [PostController::class, 'index']);
+Route::get('posts/{id}', [PostController::class, 'show']);
+Route::get('comments/posts/{id}', [PostController::class, 'comments']);
 
-Route::post('register' , 'Api\UserController@store');
-Route::post('token' , 'Api\UserController@getToken');
+// Authentication
+Route::post('register', [UserController::class, 'store']);
+Route::post('token', [UserController::class, 'getToken']);
 
-Route::middleware('auth:api')->group(function (){
-    Route::post('update-user/{id}' , 'Api\UserController@update');
-    Route::post('posts' , 'Api\PostController@store');
-    Route::post('posts/{id}' , 'Api\PostController@update');
-    Route::delete('posts/{id}' , 'Api\PostController@destroy');
-    Route::post('comments/posts/{id}' , 'Api\CommentController@store');
+// Protected routes (Bearer api_token)
+Route::middleware('auth:api')->group(function () {
+    Route::post('update-user/{id}', [UserController::class, 'update']);
+
+    Route::post('posts', [PostController::class, 'store']);
+    Route::post('posts/{id}', [PostController::class, 'update']);
+    Route::delete('posts/{id}', [PostController::class, 'destroy']);
+
+    Route::post('comments/posts/{id}', [CommentController::class, 'store']);
 });

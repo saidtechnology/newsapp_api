@@ -1,37 +1,24 @@
 <?php
 
+use App\Http\Controllers\DocumentationController;
+use App\Http\Controllers\HomeController;
+use Illuminate\Support\Facades\Route;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
 |--------------------------------------------------------------------------
 |
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| contains the "web" middleware group. Now create something great!
+| The project is API-first. Only the landing page, the HTML API reference
+| and the post-login landing page are exposed on the web side. The previous
+| Eloquent data-dump routes were removed (they leaked the whole database).
 |
 */
-
-Route::get('/users', function () {
-    return \App\User::all();
-});
-
-Route::get('/categories', function () {
-    return \App\Category::all();
-});
-
-Route::get('/posts', function () {
-    return \App\Post::all();
-});
-
-Route::get('/comments', function () {
-    return \App\Comment::all();
-});
 
 Route::get('/', function () {
     return view('welcome');
 });
 
-Auth::routes();
+Route::get('/home', [HomeController::class, 'index'])->name('home');
 
-Route::get('/home', 'HomeController@index')->name('home');
-Route::get('/documentation', 'DocumentationController@index')->name('documentation');
+Route::get('/documentation', [DocumentationController::class, 'index'])->name('documentation');

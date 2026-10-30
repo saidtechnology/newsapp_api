@@ -3,144 +3,129 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CommentstResource;
+use App\Http\Resources\CommentsResource;
 use App\Http\Resources\PostResource;
 use App\Http\Resources\PostsResource;
 use App\Post;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
 {
     /**
-     * @return PostsResource
+     * Paginated list of posts.
      */
-
     public function index()
     {
-        $posts = Post::paginate(env('POSTS_PER_PAGE'));
-        return new PostsResource($posts);
+        return new PostsResource(Post::paginate(config('newsapp.posts_per_page')));
     }
 
-
     /**
-     * @param Request $request
-     * @return PostResource
+     * Create a post (authenticated).
      */
-
     public function store(Request $request)
     {
-        $request->validate([
-            'title' => 'required',
-            'content' => 'required',
-            'category_id' => 'required'
+        $validated = $request->validate([
+            'title' => ['required', 'string', 'max:255'],
+            'content' => ['required', 'string'],
+            'category_id' => ['required', 'integer', 'exists:categories,id'],
+            'featured_image' => ['nullable', 'image', 'max:5120'],
         ]);
 
-        $user = $request->user();
         $post = new Post();
-        $post->title = $request->get('title');
-        $post->content = $request->get('content');
-        $cateId  = intval($request->get('category_id'));
-        if( $cateId != 0 ){
-            $post->category_id = $cateId;
-        }
-        $post->user_id = $user->id;
+        $post->title = $validated['title'];
+        $post->content = $validated['content'];
+        $post->category_id = $validated['category_id'];
+        $post->user_id = $request->user()->id;
         $post->votes_up = 0;
         $post->votes_down = 0;
-        $post->date_written = Carbon::now()->format('Y-m-d H:i:s');
+        $post->date_written = now();
 
-        // TODO: Handle 404 error
-        if($request->hasFile('featured_image')){
+        if ($request->hasFile('featured_image')) {
             $featuredImage = $request->file('featured_image');
             $filename = time().$featuredImage->getClientOriginalName();
-            Storage::disk('images')->putFileAs(
-                $filename,
-                $featuredImage,
-                $filename
-            );
+            Storage::disk('images')->putFileAs($filename, $featuredImage, $filename);
             $post->featured_image = url('/').'/images/'.$filename;
         }
+
         $post->save();
-        return new PostResource($post);
+
+        return (new PostResource($post))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
-
     /**
-     * @param $id
-     * @return PostResource
+     * Show a single post with its author and comments.
      */
-
     public function show($id)
     {
-        $post = Post::with(['comments' , 'author'])->where('id' , $id)->get();
-        return new PostResource($post);
+        return new PostResource(
+            Post::with(['comments', 'author'])->findOrFail($id)
+        );
     }
 
-
     /**
-     * @param Request $request
-     * @param $id
-     * @return PostResource
+     * Update a post owned by the authenticated user.
      */
-
     public function update(Request $request, $id)
     {
-        $post = Post::find($id);
+        $post = Post::findOrFail($id);
 
-        if($request->has('title')){
-            $post->title = $request->get('title');
-        }
+        abort_unless(
+            $request->user()->id === $post->user_id,
+            Response::HTTP_FORBIDDEN,
+            'You can only update your own posts.'
+        );
 
-        if ($request->has('content')){
-            $post->content = $request->get('content');
-        }
+        $validated = $request->validate([
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'content' => ['sometimes', 'required', 'string'],
+            'category_id' => ['sometimes', 'required', 'integer', 'exists:categories,id'],
+            'featured_image' => ['nullable', 'image', 'max:5120'],
+        ]);
 
-        if($request->has('category_id')){
-            $cateId  = intval($request->get('category_id'));
-            if( $cateId != 0 ){
-                $post->category_id = $cateId;
-            }
-        }
+        unset($validated['featured_image']);
+        $post->fill($validated);
 
-        // TODO: Handle 404 error
-        if($request->hasFile('featured_image')){
+        if ($request->hasFile('featured_image')) {
             $featuredImage = $request->file('featured_image');
             $filename = time().$featuredImage->getClientOriginalName();
-            Storage::disk('images')->putFileAs(
-                $filename,
-                $featuredImage,
-                $filename
-            );
+            Storage::disk('images')->putFileAs($filename, $featuredImage, $filename);
             $post->featured_image = url('/').'/images/'.$filename;
         }
+
         $post->save();
+
         return new PostResource($post);
     }
 
-
     /**
-     * @param $id
-     * @return PostResource
+     * Delete a post owned by the authenticated user.
      */
-
-    public function destroy($id)
+    public function destroy(Request $request, $id)
     {
-        $post = Post::find($id);
+        $post = Post::findOrFail($id);
+
+        abort_unless(
+            $request->user()->id === $post->user_id,
+            Response::HTTP_FORBIDDEN,
+            'You can only delete your own posts.'
+        );
+
         $post->delete();
-        return new PostResource($post);
+
+        return response()->json(null, Response::HTTP_NO_CONTENT);
     }
 
-
     /**
-     * @param $id
-     * @return CommentstResource
+     * Comments belonging to a post.
      */
-
     public function comments($id)
     {
-        $post = Post::find($id);
-        $comments = $post->comments()->paginate(env('COMMENTS_PER_PAGE'));
-        return new CommentstResource($comments);
+        $post = Post::findOrFail($id);
+
+        return new CommentsResource(
+            $post->comments()->paginate(config('newsapp.comments_per_page'))
+        );
     }
 }
