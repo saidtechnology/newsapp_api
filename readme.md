@@ -130,3 +130,6 @@ If you discover a security vulnerability, please review [SECURITY.md](SECURITY.m
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+
+<!-- Automated reviews -->
+This repository uses [CodeRabbit](https://www.coderabbit.ai/) for automated open-source pull-request reviews.
