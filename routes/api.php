@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\CategoryController;
 use App\Http\Controllers\Api\CommentController;
 use App\Http\Controllers\Api\PostController;
+use App\Http\Controllers\Api\SummaryController;
 use App\Http\Controllers\Api\UserController;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::get('posts/categories/{id}', [CategoryController::class, 'posts']);
 // Posts
 Route::get('posts', [PostController::class, 'index']);
 Route::get('posts/{id}', [PostController::class, 'show']);
+Route::get('posts/{id}/summary', [SummaryController::class, 'show'])->middleware('throttle:10,1');
 Route::get('comments/posts/{id}', [PostController::class, 'comments']);
 
 // Authentication

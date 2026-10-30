@@ -12,6 +12,7 @@ use App\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
@@ -35,7 +36,7 @@ class UserController extends Controller
             'password' => ['required', 'string', 'min:8'],
         ]);
 
-        $user = new User();
+        $user = new User;
         $user->name = $validated['name'];
         $user->email = $validated['email'];
         $user->password = Hash::make($validated['password']);
@@ -73,10 +74,9 @@ class UserController extends Controller
         if ($request->hasFile('avatar')) {
             $request->validate(['avatar' => ['image', 'max:2048']]);
 
-            $avatar = $request->file('avatar');
-            $filename = time().$avatar->getClientOriginalName();
-            Storage::disk('images')->putFileAs($filename, $avatar, $filename);
-            $user->avatar = url('/').'/images/'.$filename;
+            $filename = Str::random(40).'.'.$request->file('avatar')->getClientOriginalExtension();
+            Storage::disk('images')->putFileAs('', $request->file('avatar'), $filename);
+            $user->avatar = Storage::disk('images')->url($filename);
         }
 
         $user->save();

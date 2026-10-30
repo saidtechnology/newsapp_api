@@ -1,10 +1,12 @@
 {
-    "name": "laravel/laravel",
+    "name": "saidtechnology/newsapp-api",
     "type": "project",
-    "description": "The Laravel Framework.",
+    "description": "A RESTful news API built with Laravel: authors, categories, posts and comments with token authentication.",
     "keywords": [
-        "framework",
-        "laravel"
+        "api",
+        "laravel",
+        "news",
+        "rest"
     ],
     "license": "MIT",
     "require": {
@@ -12,8 +14,7 @@
         "ext-openssl": "*",
         "guzzlehttp/guzzle": "^7.9",
         "laravel/framework": "^12.0",
-        "laravel/tinker": "^2.10",
-        "laravel/ui": "^4.0"
+        "laravel/tinker": "^2.10"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
@@ -38,20 +39,17 @@
             "App\\": "app/",
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/"
-        },
-        "classmap": [
-            "database/seeds",
-            "database/factories"
-        ]
+        }
     },
     "autoload-dev": {
         "psr-4": {
             "Tests\\": "tests/"
         }
     },
-    "minimum-stability": "dev",
-    "prefer-stable": true,
     "scripts": {
+        "test": "@php artisan test",
+        "lint": "pint --test",
+        "format": "pint",
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
             "@php artisan package:discover --ansi"

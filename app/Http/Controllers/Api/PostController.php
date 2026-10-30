@@ -9,6 +9,7 @@ use App\Http\Resources\PostsResource;
 use App\Post;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Symfony\Component\HttpFoundation\Response;
 
 class PostController extends Controller
@@ -33,7 +34,7 @@ class PostController extends Controller
             'featured_image' => ['nullable', 'image', 'max:5120'],
         ]);
 
-        $post = new Post();
+        $post = new Post;
         $post->title = $validated['title'];
         $post->content = $validated['content'];
         $post->category_id = $validated['category_id'];
@@ -43,10 +44,9 @@ class PostController extends Controller
         $post->date_written = now();
 
         if ($request->hasFile('featured_image')) {
-            $featuredImage = $request->file('featured_image');
-            $filename = time().$featuredImage->getClientOriginalName();
-            Storage::disk('images')->putFileAs($filename, $featuredImage, $filename);
-            $post->featured_image = url('/').'/images/'.$filename;
+            $filename = Str::random(40).'.'.$request->file('featured_image')->getClientOriginalExtension();
+            Storage::disk('images')->putFileAs('', $request->file('featured_image'), $filename);
+            $post->featured_image = Storage::disk('images')->url($filename);
         }
 
         $post->save();
@@ -88,10 +88,9 @@ class PostController extends Controller
         $post->fill($validated);
 
         if ($request->hasFile('featured_image')) {
-            $featuredImage = $request->file('featured_image');
-            $filename = time().$featuredImage->getClientOriginalName();
-            Storage::disk('images')->putFileAs($filename, $featuredImage, $filename);
-            $post->featured_image = url('/').'/images/'.$filename;
+            $filename = Str::random(40).'.'.$request->file('featured_image')->getClientOriginalExtension();
+            Storage::disk('images')->putFileAs('', $request->file('featured_image'), $filename);
+            $post->featured_image = Storage::disk('images')->url($filename);
         }
 
         $post->save();

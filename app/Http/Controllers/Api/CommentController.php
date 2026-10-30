@@ -22,7 +22,7 @@ class CommentController extends Controller
             'content' => ['required', 'string', 'max:2000'],
         ]);
 
-        $comment = new Comment();
+        $comment = new Comment;
         $comment->content = $validated['content'];
         $comment->date_written = now();
         $comment->post_id = $post->id;

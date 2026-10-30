@@ -2,68 +2,54 @@
 
 namespace App;
 
-use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-/**
- * @method static paginate()
- * @method static find($id)
- */
+
 class User extends Authenticatable
 {
-    use Notifiable; use HasFactory;
-
+    use HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
      *
-     * @var array
+     * @var array<int, string>
      */
-
     protected $fillable = [
-        'name', 'email', 'password', 'api_token'
+        'name', 'email', 'password', 'api_token',
     ];
 
-
     /**
-     * The attributes that should be hidden for arrays.
+     * The attributes that should be hidden for serialization.
      *
-     * @var array
+     * @var array<int, string>
      */
-
     protected $hidden = [
-        'password', 'remember_token' , 'api_token'
+        'password', 'remember_token', 'api_token',
     ];
 
-
     /**
-     * The attributes that should be cast to native types.
+     * The attributes that should be cast.
      *
-     * @var array
+     * @var array<string, string>
      */
-
     protected $casts = [
         'email_verified_at' => 'datetime',
     ];
 
     /**
-     * Relation Ship.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Posts written by the user.
      */
-
-    public function posts(){
-        return $this->hasMany( Post::class );
-
+    public function posts()
+    {
+        return $this->hasMany(Post::class);
     }
 
     /**
-     * Relation Ship.
-     * @return \Illuminate\Database\Eloquent\Relations\HasMany
+     * Comments written by the user.
      */
-    public function comments(){
-        return $this->hasMany( Comment::class );
-
+    public function comments()
+    {
+        return $this->hasMany(Comment::class);
     }
-
 }

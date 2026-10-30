@@ -3,34 +3,31 @@
 namespace Database\Factories;
 
 use App\Comment;
+use App\Post;
+use App\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
-use Illuminate\Support\Str;
-use Faker\Generator as Faker;
 
 class CommentFactory extends Factory
 {
     /**
      * The name of the factory's corresponding model.
      *
-     * @var string
+     * @var class-string<Comment>
      */
     protected $model = Comment::class;
 
     /**
      * Define the model's default state.
      *
-     * @return array
+     * @return array<string, mixed>
      */
-    public function definition()
+    public function definition(): array
     {
-        // use the factory to create a Faker\Generator instance
-        //$faker = Faker\Factory::create();
-
         return [
-            'content' => $this->faker->text(),
+            'content' => $this->faker->paragraph(),
             'date_written' => now(),
-            'user_id' => $this->faker->numberBetween(1 , 50),
-            'post_id' => $this->faker->numberBetween(1 , 500),
+            'user_id' => User::factory(),
+            'post_id' => Post::factory(),
         ];
     }
 }
