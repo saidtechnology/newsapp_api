@@ -12,3 +12,20 @@ npm-debug.log
 yarn-error.log
 .aider*
 /ssl/*.pem
+
+# ===== Maintenance agent (local only — NEVER commit) =====
+/PROJECT_MAP.md
+/.maintenance-state.json
+/.maintenance/
+/.agents/
+
+# ===== Keys / secrets / IDE / tooling artifacts =====
+.env.*
+!.env.example
+*.pem
+*.key
+*.crt
+/secrets/
+/.idea/
+/.vscode/
+*.popsql
