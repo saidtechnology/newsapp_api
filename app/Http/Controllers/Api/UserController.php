@@ -10,78 +10,73 @@ use App\Http\Resources\UserResource;
 use App\Http\Resources\UsersResource;
 use App\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
+use Symfony\Component\HttpFoundation\Response;
 
 class UserController extends Controller
 {
     /**
-     * @return UsersResource
+     * Paginated list of authors.
      */
-
     public function index()
     {
-        $users = User::paginate(env('AUTHORS_PER_PAGE'));
-        return new UsersResource($users);
+        return new UsersResource(User::paginate(config('newsapp.authors_per_page')));
     }
 
     /**
-     * @param Request $request
-     * @return UserResource
+     * Register a new user.
      */
-
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required',
-            'email' => 'required',
-            'password' => 'required'
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'email', 'max:255', 'unique:users,email'],
+            'password' => ['required', 'string', 'min:8'],
         ]);
 
-        $user = new User();
-        $user->name = $request->get('name');
-        $user->email = $request->get('email');
-        $user->password = Hash::make($request->get('password'));
+        $user = new User;
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        $user->password = Hash::make($validated['password']);
         $user->save();
 
-        return new UserResource($user);
+        return (new UserResource($user))->response()->setStatusCode(Response::HTTP_CREATED);
     }
 
     /**
-     * @param $id
-     * @return UserResource
+     * Show a single author.
      */
-
     public function show($id)
     {
-        return new UserResource(User::find($id));
+        return new UserResource(User::findOrFail($id));
     }
 
     /**
-     * @param Request $request
-     * @param $id
-     * @return UserResource
+     * Update the authenticated user's own profile.
      */
-
     public function update(Request $request, $id)
     {
-        $user = User::find($id);
+        $user = User::findOrFail($id);
 
-        if($request->has('name')){
+        abort_unless(
+            $request->user()->id === $user->id,
+            Response::HTTP_FORBIDDEN,
+            'You can only update your own profile.'
+        );
+
+        if ($request->has('name')) {
+            $request->validate(['name' => ['string', 'max:255']]);
             $user->name = $request->get('name');
-
         }
 
-        if($request->hasFile('avatar')){
-            $featuredAvatar = $request->file('avatar');
-            $filename = time().$featuredAvatar->getClientOriginalName();
-            Storage::disk('images')->putFileAs(
-                $filename,
-                $featuredAvatar,
-                $filename
-            );
-            $user->avatar = url('/').'/images/'.$filename;
+        if ($request->hasFile('avatar')) {
+            $request->validate(['avatar' => ['image', 'max:2048']]);
+
+            $filename = Str::random(40).'.'.$request->file('avatar')->getClientOriginalExtension();
+            Storage::disk('images')->putFileAs('', $request->file('avatar'), $filename);
+            $user->avatar = Storage::disk('images')->url($filename);
         }
 
         $user->save();
@@ -90,57 +85,48 @@ class UserController extends Controller
     }
 
     /**
-     * @param $id
+     * Posts written by an author.
      */
-
-    public function destroy($id)
+    public function posts($id)
     {
-        //
+        $user = User::findOrFail($id);
+
+        return new AuthorPostsResource(
+            $user->posts()->paginate(config('newsapp.posts_per_page'))
+        );
     }
 
     /**
-     * @param $id
-     * @return AuthorPostsResource
+     * Comments written by an author.
      */
+    public function comments($id)
+    {
+        $user = User::findOrFail($id);
 
-    public function posts ($id){
-        $user = User::find($id);
-        $posts = $user->posts()->paginate(env('POSTS_PER_PAGE'));
-        return new AuthorPostsResource($posts);
+        return new AuthorCommentsResource(
+            $user->comments()->paginate(config('newsapp.comments_per_page'))
+        );
     }
 
     /**
-     * @param $id
-     * @return AuthorCommentsResource
+     * Exchange email + password for the user's API token.
      */
-
-    public function comments ($id){
-        $user = User::find($id);
-        $comments = $user->comments()->paginate(env('COMMENTS_PER_PAGE'));
-        return new AuthorCommentsResource($comments);
-    }
-
-    /**
-     * @param Request $request
-     * @return TokenResource|string
-     */
-
     public function getToken(Request $request)
     {
-        $request->validate([
-            'email' => 'required' ,
-            'password' => 'required',
+        $validated = $request->validate([
+            'email' => ['required', 'email'],
+            'password' => ['required', 'string'],
         ]);
 
-        $credentials =  $request->only('email' , 'password');
+        $user = User::where('email', $validated['email'])->first();
 
-        if(Auth::attempt($credentials))
-        {
-            $user = User::where('email' , $request->get('email'))->first();
-            return new TokenResource([
-                'token' => $user->api_token
-            ]);
+        if (! $user || ! Hash::check($validated['password'], $user->password)) {
+            return response()->json(
+                ['message' => 'Invalid credentials.'],
+                Response::HTTP_UNAUTHORIZED
+            );
         }
-        return 'not found';
+
+        return new TokenResource(['token' => $user->api_token]);
     }
 }

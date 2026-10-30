@@ -22,8 +22,8 @@ class CreatePostsTable extends Migration
             $table->integer('votes_up')->nullable();
             $table->integer('votes_down')->nullable();
             // RelationShips
-            $table->integer('user_id');
-            $table->integer('category_id');
+            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

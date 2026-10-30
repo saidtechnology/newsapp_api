@@ -1,74 +1,132 @@
-<p align="center"><img src="https://res.cloudinary.com/dtfbvvkyp/image/upload/v1566331377/laravel-logolockup-cmyk-red.svg" width="400"></p>
+# Newsapp API
 
-<p align="center">
-<a href="https://travis-ci.org/laravel/framework"><img src="https://travis-ci.org/laravel/framework.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/d/total.svg" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/v/stable.svg" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
-</p>
+[![Laravel](https://img.shields.io/badge/Laravel-12-red.svg)](https://laravel.com)
+[![PHP](https://img.shields.io/badge/PHP-8.2%2B-blue.svg)](https://php.net)
+[![License](https://img.shields.io/badge/license-MIT-green.svg)](LICENSE)
 
-## About Laravel
+A clean, RESTful news API built with Laravel. It exposes authors, categories, posts and comments with token-based authentication for creating and managing content.
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Features
 
--   [Simple, fast routing engine](https://laravel.com/docs/routing).
--   [Powerful dependency injection container](https://laravel.com/docs/container).
--   Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
--   Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
--   Database agnostic [schema migrations](https://laravel.com/docs/migrations).
--   [Robust background job processing](https://laravel.com/docs/queues).
--   [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+- **REST API** — Resource-based JSON API under `/api/*`
+- **Token authentication** — Simple `api_token` flow (register → login → use `Authorization: Bearer <token>`)
+- **Ownership checks** — Users can only update/delete their own posts and profiles
+- **Pagination** — All lists are paginated via configurable per-page values
+- **Image uploads** — Attach a `featured_image` to posts or an `avatar` to a profile
+- **Optional AI summaries** — Any OpenAI-compatible provider (Groq, Together, OpenRouter, Ollama) via `GET /api/posts/{id}/summary`, cached to respect free tiers
+- **OpenAPI spec** — Machine-readable documentation in [`doc/api-documentation.yml`](doc/api-documentation.yml)
+- **Tested** — PHPUnit feature/unit tests and a GitHub Actions matrix (PHP 8.2–8.4)
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+## Requirements
 
-## Learning Laravel
+- PHP >= 8.2 with `mbstring`, `xml`, `curl`, `openssl` and `pdo_sqlite` (or `pdo_mysql`)
+- Composer
+- SQLite / MySQL / PostgreSQL
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+## Installation
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 1500 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+```bash
+# Clone the repository
+git clone https://github.com/saidtechnology/newsapp_api.git
+cd newsapp_api
 
-## Laravel Sponsors
+# Install dependencies
+composer install
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+# Copy environment file
+cp .env.example .env
 
--   **[Vehikl](https://vehikl.com/)**
--   **[Tighten Co.](https://tighten.co)**
--   **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
--   **[64 Robots](https://64robots.com)**
--   **[Cubet Techno Labs](https://cubettech.com)**
--   **[Cyber-Duck](https://cyber-duck.co.uk)**
--   **[British Software Development](https://www.britishsoftware.co)**
--   **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
--   **[DevSquad](https://devsquad.com)**
--   [UserInsights](https://userinsights.com)
--   [Fragrantica](https://www.fragrantica.com)
--   [SOFTonSOFA](https://softonsofa.com/)
--   [User10](https://user10.com)
--   [Soumettre.fr](https://soumettre.fr/)
--   [CodeBrisk](https://codebrisk.com)
--   [1Forge](https://1forge.com)
--   [TECPRESSO](https://tecpresso.co.jp/)
--   [Runtime Converter](http://runtimeconverter.com/)
--   [WebL'Agence](https://weblagence.com/)
--   [Invoice Ninja](https://www.invoiceninja.com)
--   [iMi digital](https://www.imi-digital.de/)
--   [Earthlink](https://www.earthlink.ro/)
--   [Steadfast Collective](https://steadfastcollective.com/)
--   [We Are The Robots Inc.](https://watr.mx/)
--   [Understand.io](https://www.understand.io/)
--   [Abdel Elrafa](https://abdelelrafa.com)
--   [Hyper Host](https://hyper.host)
--   [Appoly](https://www.appoly.co.uk)
--   [OP.GG](https://op.gg)
+# Generate application key
+php artisan key:generate
+
+# Configure your database in .env (SQLite works out of the box)
+touch database/database.sqlite
+
+# Run migrations and seed sample data
+php artisan migrate --seed
+
+# (Optional) Link storage for uploaded images
+php artisan storage:link
+
+# Serve the application
+php artisan serve
+```
+## API Reference
+
+Full interactive documentation is available via [Bump.sh](https://bump.sh/) using [`doc/api-documentation.yml`](doc/api-documentation.yml).
+
+### Quick overview
+
+| Method | Endpoint | Auth | Description |
+| --- | --- | --- | --- |
+| `POST` | `/api/register` | No | Register a new user |
+| `POST` | `/api/token` | No | Get API token for credentials |
+| `GET` | `/api/authors` | No | List authors |
+| `GET` | `/api/authors/{id}` | No | Show author |
+| `GET` | `/api/posts/author/{id}` | No | Posts by author |
+| `GET` | `/api/comments/author/{id}` | No | Comments by author |
+| `GET` | `/api/categories` | No | List categories |
+| `GET` | `/api/posts/categories/{id}` | No | Posts by category |
+| `GET` | `/api/posts` | No | List posts (includes author/comments on `show`) |
+| `GET` | `/api/posts/{id}` | No | Show post |
+| `GET` | `/api/comments/posts/{id}` | No | Comments on post |
+| `GET` | `/api/posts/{id}/summary` | No | AI summary (optional, cached) |
+| `POST` | `/api/posts` | **Yes** | Create post |
+| `POST` | `/api/posts/{id}` | **Yes** | Update post (owner) |
+| `DELETE` | `/api/posts/{id}` | **Yes** | Delete post (owner) |
+| `POST` | `/api/comments/posts/{id}` | **Yes** | Add comment |
+| `POST` | `/api/update-user/{id}` | **Yes** | Update own profile |
+
+> Pagination uses `?page=`. Page sizes are controlled by `POSTS_PER_PAGE`, `AUTHORS_PER_PAGE`, `COMMENTS_PER_PAGE`, `CATEGORIES_PER_PAGE`.
+
+## Optional AI summaries
+
+The summary endpoint is provider-agnostic and disabled by default. Point it at any
+OpenAI-compatible API (the examples use Groq's free tier) and set a key:
+
+```dotenv
+NEWSAPP_AI_ENABLED=true
+NEWSAPP_AI_BASE_URL=https://api.groq.com/openai/v1
+NEWSAPP_AI_API_KEY=gsk_...
+NEWSAPP_AI_MODEL=llama-3.1-8b-instant
+```
+
+```bash
+curl http://localhost:8000/api/posts/1/summary
+```
+
+Summaries are cached for `NEWSAPP_AI_CACHE_TTL` seconds (default 1 hour).
+Content is truncated to `NEWSAPP_AI_MAX_CONTENT_CHARS` (default 6000) and the
+endpoint allows 10 requests per minute per client. When AI is disabled or the
+provider errors, the endpoint returns `503` — it never breaks the rest of the API.
+No key is committed to the repository.
+
+## Testing
+
+```bash
+cp .env.example .env
+php artisan key:generate
+php artisan test
+```
+
+The suite uses SQLite in-memory by default (`phpunit.xml`) and covers public
+endpoints, registration/token auth, ownership rules, validation, relations and
+the AI summarizer (with a faked HTTP client).
+
+Code style is enforced with [Laravel Pint](https://laravel.com/docs/pint):
+
+```bash
+vendor/bin/pint --test
+```
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-## Security Vulnerabilities
+## Security
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+If you discover a security vulnerability, please review [SECURITY.md](SECURITY.md).
 
 ## License
 
-The Laravel framework is open-source software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).

@@ -1,44 +1,336 @@
-openapi: 3.0.0
+openapi: 3.0.3
 info:
-  title: News App API
+  title: Newsapp API
+  description: |
+    REST API for a Laravel-based news application. All write operations require
+    authentication via `api_token` passed as a Bearer token.
+
+    **Authentication flow**
+    1. Register: `POST /api/register`
+    2. Get token: `POST /api/token` (returns the user's `api_token`)
+    3. Call protected endpoints with header: `Authorization: Bearer <api_token>`
   version: 1.0.0
-  description: API documentation for News App
-
+  contact:
+    name: saidtechnology
 servers:
-  - url: https://api.example.com/v1
-    description: Production server
-
+  - url: /
+    description: Current host
+tags:
+  - name: Authors
+  - name: Categories
+  - name: Posts
+  - name: Comments
+  - name: AI
+  - name: Auth
 paths:
-  /api/articles:
+  /api/authors:
     get:
-      summary: List articles
+      tags: [Authors]
+      summary: List authors (paginated)
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+  /api/authors/{id}:
+    get:
+      tags: [Authors]
+      summary: Get author by ID
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+  /api/posts/author/{id}:
+    get:
+      tags: [Authors]
+      summary: Posts by author (paginated)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+  /api/comments/author/{id}:
+    get:
+      tags: [Authors]
+      summary: Comments by author (paginated)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+  /api/categories:
+    get:
+      tags: [Categories]
+      summary: List categories (paginated)
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+  /api/posts/categories/{id}:
+    get:
+      tags: [Categories]
+      summary: Posts by category (paginated)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+  /api/posts:
+    get:
+      tags: [Posts]
+      summary: List posts (paginated)
+      parameters:
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+    post:
+      tags: [Posts]
+      summary: Create post
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [title, content, category_id]
+              properties:
+                title: { type: string }
+                content: { type: string }
+                category_id: { type: integer }
+                featured_image: { type: string, format: binary }
+      responses:
+        '201': { description: Created }
+        '401': { description: Unauthenticated }
+        '422': { description: Validation error }
+  /api/posts/{id}:
+    get:
+      tags: [Posts]
+      summary: Get post with author and comments
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+    post:
+      tags: [Posts]
+      summary: Update post (owner only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                title: { type: string }
+                content: { type: string }
+                category_id: { type: integer }
+                featured_image: { type: string, format: binary }
+      responses:
+        '200': { description: OK }
+        '401': { description: Unauthenticated }
+        '403': { description: Forbidden }
+        '404': { description: Not found }
+        '422': { description: Validation error }
+    delete:
+      tags: [Posts]
+      summary: Delete post (owner only)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      responses:
+        '204': { description: No content }
+        '401': { description: Unauthenticated }
+        '403': { description: Forbidden }
+        '404': { description: Not found }
+  /api/posts/{id}/summary:
+    get:
+      tags: [AI]
+      summary: AI summary for a post (optional, cached)
+      description: |
+        Requires an OpenAI-compatible provider to be configured through
+        `NEWSAPP_AI_*` environment variables. Returns `503` when AI is
+        disabled, not configured, or the provider fails. Content is truncated
+        to `NEWSAPP_AI_MAX_CONTENT_CHARS` and the endpoint is limited to
+        10 requests per minute per client.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
       responses:
         '200':
-          description: Successful response
-
-components:
-  schemas:
-    Article:
-      type: object
-      properties:
-        id:
-          type: integer
-        title:
-          type: string
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      post_id: { type: integer }
+                      summary: { type: string }
+                      model: { type: string }
+        '404': { description: Not found }
+        '429': { description: Too many requests (10/minute) }
+        '503': { description: AI summarization unavailable }
+  /api/comments/posts/{id}:
+    get:
+      tags: [Comments]
+      summary: Comments for a post (paginated)
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+        - in: query
+          name: page
+          schema: { type: integer }
+      responses:
+        '200': { description: OK }
+        '404': { description: Not found }
+    post:
+      tags: [Comments]
+      summary: Add comment (authenticated)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
         content:
-          type: string
-        category_id:
-          type: integer
-        created_at:
-          type: string
-          format: date-time
-    
-    Pagination:
-      type: object
-      properties:
-        current_page:
-          type: integer
-        total:
-          type: integer
-        per_page:
-          type: integer
+          application/json:
+            schema:
+              type: object
+              required: [content]
+              properties:
+                content: { type: string, maxLength: 2000 }
+      responses:
+        '201': { description: Created }
+        '401': { description: Unauthenticated }
+        '404': { description: Not found }
+        '422': { description: Validation error }
+  /api/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [name, email, password]
+              properties:
+                name: { type: string, maxLength: 255 }
+                email: { type: string, format: email }
+                password: { type: string, minLength: 8 }
+      responses:
+        '201': { description: Created }
+        '422': { description: Validation error }
+  /api/token:
+    post:
+      tags: [Auth]
+      summary: Exchange credentials for API token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      token: { type: string }
+        '401': { description: Invalid credentials }
+        '422': { description: Validation error }
+  /api/update-user/{id}:
+    post:
+      tags: [Authors]
+      summary: Update own profile (authenticated)
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                name: { type: string, maxLength: 255 }
+                avatar: { type: string, format: binary }
+      responses:
+        '200': { description: OK }
+        '401': { description: Unauthenticated }
+        '403': { description: Forbidden }
+        '404': { description: Not found }
+        '422': { description: Validation error }
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Use the api_token returned by POST /api/token

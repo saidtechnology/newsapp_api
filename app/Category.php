@@ -2,8 +2,8 @@
 
 namespace App;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
 /**
  * @method static find($id)
@@ -11,13 +11,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 class Category extends Model
 {
     use HasFactory;
-    
+
     protected $fillable = [
-        'title'
+        'title',
     ];
 
-
-    public function posts(){
+    public function posts()
+    {
         return $this->hasMany(Post::class);
     }
 }

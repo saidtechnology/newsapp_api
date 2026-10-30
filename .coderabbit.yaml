@@ -1,0 +1,46 @@
+# CodeRabbit configuration for this open-source repository.
+# Free for open-source projects: https://www.coderabbit.ai/
+language: en-US
+early_access: false
+reviews:
+  profile: chill
+  request_changes_workflow: false
+  high_level_summary: true
+  high_level_summary_placeholder: "@coderabbitai summary"
+  poem: false
+  review_status: true
+  collapse_walkthrough: false
+  sequence_diagrams: true
+  path_filters:
+    - "!vendor/**"
+    - "!node_modules/**"
+    - "!public/build/**"
+    - "!storage/**"
+    - "!composer.lock"
+    - "!package-lock.json"
+  path_instructions:
+    - path: "app/Http/Controllers/Api/**"
+      instructions: >-
+        Verify that every write operation checks ownership or authorization,
+        that input is validated, and that responses use the correct HTTP status
+        codes (201 for create, 204 for delete, 403 for forbidden).
+    - path: "app/Services/**"
+      instructions: >-
+        Ensure external HTTP calls use timeouts, never log secrets or API keys,
+        and fail gracefully without breaking unrelated endpoints.
+    - path: "database/migrations/**"
+      instructions: >-
+        Check for destructive changes, missing indexes on foreign keys, and
+        compatibility with SQLite (used by the test suite).
+    - path: "tests/**"
+      instructions: >-
+        Prefer behaviour-based assertions over implementation details; flag
+        tests that cannot fail or that depend on execution order.
+  auto_review:
+    enabled: true
+    drafts: false
+    base_branches:
+      - master
+      - maintenance/*
+chat:
+  auto_reply: true
