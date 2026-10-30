@@ -20,6 +20,7 @@ jobs:
         env:
           BUMP_TOKEN: ${{ secrets.BUMP_TOKEN }}
         if: ${{ env.BUMP_TOKEN != '' }}
+        continue-on-error: true # doc/hub names on Bump.sh not configured yet
         uses: bump-sh/github-action@v1
         with:
           doc: saidtechnology
@@ -37,6 +38,7 @@ jobs:
         env:
           BUMP_TOKEN: ${{ secrets.BUMP_TOKEN }}
         if: ${{ env.BUMP_TOKEN != '' }}
+        continue-on-error: true # doc/hub names on Bump.sh not configured yet
         uses: bump-sh/github-action@v1
         with:
           doc: saidtechnology
